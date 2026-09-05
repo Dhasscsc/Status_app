@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>தாஸ் பொது சேவை மையம் - மேம்பட்ட கண்காணிப்பு | பதிவு தேதி, நிலுவை, புள்ளிவிவரம்</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e9eff7 0%, #cfdfed 100%);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+        }
+        .card {
+            border-radius: 1.25rem;
+            border: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+        .btn-group-custom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .whatsapp-link {
+            cursor: pointer;
+            color: #25D366;
+            font-size: 1.2rem;
+            transition: 0.2s;
+            background: #f0f0f0;
+            border-radius: 30px;
+            padding: 5px 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+        .whatsapp-link:hover {
+            background: #e1f5e8;
+            transform: scale(1.02);
+            color: #128C7E;
+        }
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .search-box {
+            background: white;
+            border-radius: 50px;
+            padding: 5px 15px;
+            border: 1px solid #dee2e6;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 1rem;
+            transition: 0.2s;
+            cursor: pointer;
+            border-left: 5px solid;
+        }
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .active-filter {
+            background-color: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+        .table-responsive {
+            max-height: 58vh;
+            overflow-y: auto;
+            border-radius: 1rem;
+        }
+        .last-updated {
+            font-size: 0.7rem;
+            color: #5e6f8d;
+        }
+        .register-date {
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #eef2ff;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 30px;
+        }
+        .days-elapsed {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+        .days-elapsed.days-done { color: #198754; }
+        .days-elapsed.days-ok { color: #5e6f8d; }
+        .days-elapsed.days-warn { color: #b8860b; }
+        .days-elapsed.days-late { color: #dc3545; }
+        .unique-id {
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #e9ecef;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .ref-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        .doc-btn {
+            border: none;
+            background: #eef2ff;
+            color: #3b5bdb;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+        .doc-btn:hover { background: #dbe4ff; }
+        .doc-view {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+        .doc-view:hover { background: #b2f2bb; }
+        @media print {
+            .no-print, .btn-group-custom, .search-box, .stats-row, .whatsapp-link, .form-check-input, .btn, .doc-upload-btn {
+                display: none !important;
+            }
+        }
+        .scroll-target {
+            scroll-margin-top: 100px;
+        }
+        .sync-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+            font-size: 12px;
+        }
+        #syncStatus {
+            color: #5e6f8d;
+            font-weight: 600;
+        }
+        .sync-btn {
+            background: #eef2ff;
+            border: 1px solid #d7e0ff;
+            color: #3b5bdb;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .sync-btn:hover {
+            background: #dbe4ff;
+        }
+        @media print {
+            .sync-bar { display: none !important; }
+        }
+        .toast-container-custom {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            pointer-events: none;
+            width: 100%;
+            padding: 0 10px;
+        }
+        .action-toast {
+            background: #212529;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            opacity: 0;
+            transform: translateY(-12px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .action-toast.show { opacity: 1; transform: translateY(0); }
+        .action-toast.toast-success { background: #198754; }
+        .action-toast.toast-warning { background: #dc3545; }
+        .action-toast.toast-info { background: #3b5bdb; }
+        @media print {
+            .toast-container-custom { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+<div id="toastContainer" class="toast-container-custom"></div>
+<div class="container-fluid px-3 px-md-4 py-3">
+    <h1 class="text-center mb-3"><i class="fas fa-chalkboard-user text-primary"></i> தாஸ் பொது சேவை மையம் - முழு கண்காணிப்பு</h1>
+
+    <!-- ========================= Cloud Sync (Google Sheets) ========================= -->
+    <div class="sync-bar">
+        <span id="syncStatus">☁️ Sync அமைக்கப்படவில்லை</span>
+        <button class="sync-btn" onclick="manualSync()" title="இப்போதே சின்க் செய்">🔄 இப்போதே சின்க்</button>
+        <button class="sync-btn" onclick="promptGasUrl()" title="Sync URL அமை">⚙️ Sync அமை</button>
+    </div>
+
+    <!-- ========================= படிவம் ========================= -->
+    <div id="formSection" class="card shadow-sm mb-4 scroll-target">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-pen-alt"></i> புதிய வேலை / திருத்தம் (DHS-ID தானியங்கி)</h5>
+        </div>
+        <div class="card-body">
+            <form id="serviceForm">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label>பெயர் *</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>செல் நம்பர் *</label>
+                        <input type="tel" id="mobile" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>சேவை பெயர் *</label>
+                        <input type="text" id="serviceName" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>குறிப்பு எண் *</label>
+                        <input type="text" id="refNo" class="form-control" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label>சேவை நிலை</label>
+                        <select id="status" class="form-select">
+                            <option value="Pending">⏳ நிலுவையில்</option>
+                            <option value="In Progress">🔧 செயல்பாட்டில்</option>
+                            <option value="Completed">✅ முடிந்தது</option>
+                            <option value="Rejected">❌ நிராகரிக்கப்பட்டது</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>குறிப்பு</label>
+                        <input type="text" id="note" class="form-control" placeholder="கூடுதல் விவரம்">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save"></i> சேமி / புதுப்பி</button>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" id="clearFormBtn" class="btn btn-secondary w-100"><i class="fas fa-undo"></i> Clear</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================= புள்ளிவிவர கார்டுகள் ========================= -->
+    <div class="row stats-row g-3 mb-4" id="statsRow">
+        <div class="col-md-3 col-6">
+            <div class="stats-card p-3 text-center" data-filter="completed" style="border-left-color: #198754;">
+                <h6 class="text-secondary">✅ முடிந்த வேலைகள்</h6>
+                <h3 class="text-success fw-bold" id="completedCount">0</h3>
+                <small class="text-muted">மொத்தம்</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card p-3 text-center" data-filter="rejected" style="border-left-color: #dc3545;">
+                <h6 class="text-secondary">❌ நிராகரிக்கப்பட்டவை</h6>
+                <h3 class="text-danger fw-bold" id="rejectedCount">0</h3>
+                <small class="text-muted">மறுப்பு செய்யப்பட்டன</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card p-3 text-center active-filter" id="pendingFilterCard" data-filter="pending" style="border-left-color: #ffc107; background:#fff3cd;">
+                <h6 class="text-dark">⏳ நிலுவையில் உள்ளன</h6>
+                <h3 class="fw-bold text-warning" id="pendingCount">0</h3>
+                <small class="text-muted">தற்போதைய பட்டியல்</small>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card p-3 text-center" id="allJobsCard" data-filter="all" style="border-left-color: #0d6efd;">
+                <h6 class="text-secondary">📋 மொத்த பதிவுகள்</h6>
+                <h3 class="text-primary fw-bold" id="totalCount">0</h3>
+                <small class="text-muted">அனைத்து வேலைகளும்</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= தேடல் & கருவிகள் ========================= -->
+    <div class="row g-2 mb-3 align-items-center">
+        <div class="col-md-5 col-12">
+            <div class="search-box d-flex align-items-center">
+                <i class="fas fa-search text-secondary me-2"></i>
+                <input type="text" id="searchInput" class="form-control border-0 ps-1" placeholder="🔍 DHS-ID / பெயர் / செல் நம்பர் மூலம் தேடுக...">
+            </div>
+        </div>
+        <div class="col-md-7 col-12">
+            <div class="btn-group-custom justify-content-md-end">
+                <button class="btn btn-success" id="exportExcelBtn"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn btn-secondary" id="importExcelBtn"><i class="fas fa-upload"></i> இறக்குமதி</button>
+                <input type="file" id="importFile" accept=".xlsx, .xls, .csv" style="display:none">
+                <button class="btn btn-info" id="printTableBtn"><i class="fas fa-print"></i> அச்சிடு</button>
+                <button class="btn btn-outline-primary" id="docSettingsBtn" title="ஆவண சேமிப்பு (Drive) அமை"><i class="fas fa-gear"></i> ஆவண சேமிப்பு</button>
+                <button class="btn btn-danger" id="deleteSelectedBtn"><i class="fas fa-trash-alt"></i> தேர்வு செய்தவை நீக்கு</button>
+            </div>
+        </div>
+    </div>
+    <input type="file" id="docFileInput" style="display:none" accept=".pdf,.jpg,.jpeg,.png,.webp">
+    <div id="docUploadStatus" class="text-center text-muted small mb-2" style="display:none;"></div>
+
+    <!-- ========================= முக்கிய அட்டவணை ========================= -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-table-list"></i> வேலைகள் பட்டியல் (DHS-ID நிரந்தரமானது)</span>
+            <span class="badge bg-light text-dark" id="viewModeBadge">நிலுவை மட்டும்</span>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover align-middle" id="serviceTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th><input type="checkbox" id="selectAllCheckbox" style="transform:scale(1.1)"></th>
+                        <th>#</th>
+                        <th>DHS-ID</th>
+                        <th>பெயர்</th>
+                        <th>செல்</th>
+                        <th>சேவை</th>
+                        <th>குறிப்பு எண்</th>
+                        <th>நிலை</th>
+                        <th>குறிப்பு</th>
+                        <th>பதிவு தேதி</th>
+                        <th>கடைசி அப்டேட்</th>
+                        <th>செயல்கள்</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="noDataMsg" class="text-center text-muted py-3 d-none">📭 எந்த வேலையும் காணவில்லை</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script>
+    // ---------- DATA STRUCTURE ----------
+    // each job: { id (server UUID string), dhsId (string like DHS-001), name, mobile, serviceName,
+    //             refNo, status, note, registerDate, lastUpdated, whatsappCount, docUrl, docName,
+    //             createdAt (ms), updatedAt (ms), _local (unsynced new record), _dirty (unsynced edit) }
+    // Google Sheet (via Code.gs) இப்போது இதன் "source of truth" - ஒவ்வொரு பதிவும் Sheet-இல் ஒரு
+    // தனி row. localStorage இப்போது வெறும் ஆஃப்லைன் காப்பி (cache) மற்றும் நிலுவையிலான
+    // மாற்றங்களுக்கான queue மட்டுமே - இனி முழு தரவும் ஒரே blob ஆக மேலெழுதப்படாது.
+    let services = [];
+    let editingId = null;
+    
+    // UI state
+    let currentFilter = "pending";
+    let searchKeyword = "";
+    
+    // Get current datetime local string
+    function getCurrentDateTime() {
+        const now = new Date();
+        return now.toLocaleString('ta-IN', { hour12: false });
+    }
+
+    // "dd/MM/yyyy, HH:mm:ss" (சர்வர்) அல்லது "d/M/yyyy, H:mm:ss" (உள்ளூர் ta-IN) - இரண்டையும் படிக்கும்
+    function parseRecordDate(str) {
+        if (!str) return null;
+        const m = String(str).match(/(\d{1,2})\/(\d{1,2})\/(\d{4}),\s*(\d{1,2}):(\d{2}):(\d{2})/);
+        if (!m) return null;
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), Number(m[4]), Number(m[5]), Number(m[6]));
+    }
+
+    // பதிவு தேதி முதல் - முடிந்த/நிராகரிக்கப்பட்ட வேலைக்கு கடைசி அப்டேட் வரை,
+    // நிலுவையில் இருக்கும் வேலைக்கு இன்று வரை - எத்தனை நாள் ஆனது எனக் காட்ட
+    function daysElapsedInfo(service) {
+        const start = parseRecordDate(service.registerDate);
+        if (!start) return null;
+        const isClosed = (service.status === 'Completed' || service.status === 'Rejected');
+        const end = isClosed ? (parseRecordDate(service.lastUpdated) || new Date()) : new Date();
+        const days = Math.max(0, Math.floor((end - start) / 86400000));
+        const dayText = days === 0 ? 'இன்று' : (days + ' நாள்');
+        if (service.status === 'Completed') return { text: '✅ ' + dayText + 'இல் முடிந்தது', cls: 'days-done' };
+        if (service.status === 'Rejected') return { text: '❌ ' + dayText + 'இல் நிராகரிப்பு', cls: 'days-done' };
+        let cls = 'days-ok';
+        if (days >= 7) cls = 'days-late';
+        else if (days >= 3) cls = 'days-warn';
+        return { text: '⏱ ' + dayText + 'ஆக நிலுவையில்', cls: cls };
+    }
+
+    /* ---------- Cloud Sync (Google Apps Script + Google Sheets, per-record) ---------- */
+    // ஒவ்வொரு பதிவும் Sheet-இல் ஒரு தனி row - ஒரு கணினியில் add/edit/delete செய்தால்
+    // அது மட்டும் அந்த row-ஐ புதுப்பிக்கும், மற்ற கணினிகளின் பதிவுகளை மேலெழுதாது.
+    const GAS_URL_KEY = 'dhassStatusGasSyncUrl';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxEenE0WzOFwn5Pniu8hZtyoPUdYSTVvSIUIxNwTYTPtmOhDkis9TE2wkrzdMaZYC81tQ/exec';
+    let gasUrl = localStorage.getItem(GAS_URL_KEY) || DEFAULT_GAS_URL;
+
+    const CACHE_KEY = 'dasServiceCenterCloudCacheV3';   // offline mirror of last known cloud data
+    const QUEUE_KEY = 'dasServiceCenterPendingOpsV1';    // unsynced ops (created while offline)
+    const LEGACY_KEY = 'dasServiceCenterProV2';          // old whole-blob key, migrated once
+    const LEGACY_DONE_KEY = 'dasLegacyMigratedV1';
+
+    function setSyncStatus(text) {
+        const el = document.getElementById('syncStatus');
+        if (el) el.textContent = text;
+    }
+
+    // ஒவ்வொரு செயலுக்கும் (சேமிப்பு/புதுப்பிப்பு/நீக்கம்) உடனடி பின்னூட்டம் காட்ட
+    function showToast(text, type) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const el = document.createElement('div');
+        el.className = 'action-toast' + (type ? ' toast-' + type : '');
+        el.innerText = text;
+        container.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 300);
+        }, 2500);
+    }
+
+    function loadCache() {
+        try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveCache() {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(services)); } catch (e) {}
+    }
+    function loadQueue() {
+        try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveQueue(q) {
+        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); } catch (e) {}
+    }
+    function enqueueOp(op) {
+        const q = loadQueue();
+        q.push(op);
+        saveQueue(q);
+    }
+    function genTempId() {
+        return 'local-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    }
+
+    async function callGas_(body) {
+        const res = await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error || 'unknown error');
+        return result;
+    }
+
+    // ஒரு முறை மட்டும்: பழைய localStorage blob இருந்தால், Sheet-க்கு இடம்பெயர்த்தல்
+    async function migrateLegacyIfNeeded() {
+        if (localStorage.getItem(LEGACY_DONE_KEY)) return;
+        const legacyRaw = localStorage.getItem(LEGACY_KEY);
+        if (!legacyRaw || !gasUrl) { if (!legacyRaw) localStorage.setItem(LEGACY_DONE_KEY, '1'); return; }
+        try {
+            const legacyServices = JSON.parse(legacyRaw);
+            if (Array.isArray(legacyServices) && legacyServices.length) {
+                setSyncStatus('⏳ இந்த கணினியின் பழைய தரவுகள் Cloud-க்கு இடம்பெயர்கிறது...');
+                const recordsToImport = legacyServices.map(s => ({
+                    dhsId: s.dhsId || null,
+                    name: s.name || '', mobile: s.mobile || '', serviceName: s.serviceName || '',
+                    refNo: s.refNo || '', status: s.status || 'Pending', note: s.note || '',
+                    registerDate: s.registerDate || s.lastUpdated || getCurrentDateTime(),
+                    lastUpdated: s.lastUpdated || getCurrentDateTime(),
+                    whatsappCount: s.whatsappCount || 0,
+                    docUrl: s.docUrl || null, docName: s.docName || null,
+                    createdAt: Date.now()
+                }));
+                await callGas_({ action: 'importRecords', records: recordsToImport });
+            }
+            localStorage.setItem(LEGACY_DONE_KEY, '1');
+            localStorage.removeItem(LEGACY_KEY);
+        } catch (err) {
+            console.error('Legacy migration failed - will retry next load', err);
+        }
+    }
+
+    async function pullAllFromCloud(showStatus) {
+        if (!gasUrl) return false;
+        if (showStatus) setSyncStatus('🔄 சின்க் செய்யப்படுகிறது...');
+        try {
+            const res = await fetch(gasUrl + '?action=getAllRecords');
+            const result = await res.json();
+            if (!result.success) throw new Error(result.error || 'unknown error');
+            const remoteActive = result.records || [];
+            const deletedIds = result.deletedIds || [];
+
+            if (deletedIds.length) {
+                services = services.filter(s => !deletedIds.includes(s.id));
+            }
+            const byId = {};
+            services.forEach(s => { if (!s._local) byId[s.id] = s; });
+            remoteActive.forEach(r => {
+                const local = byId[r.id];
+                if (!local) {
+                    services.push(r);
+                } else if (!local._dirty) {
+                    Object.assign(local, r);
+                }
+            });
+            saveCache();
+            setSyncStatus('✅ சின்க் ஆனது (' + new Date().toLocaleTimeString('ta-IN') + ')');
+            return true;
+        } catch (err) {
+            setSyncStatus('⚠️ சின்க் பிழை - இணையம் சரிபார்க்கவும் (உள்ளூர் தரவு காட்டப்படுகிறது)');
+            console.error('pull error', err);
+            return false;
+        }
+    }
+
+    function applyServerResult_(op, result) {
+        if (op.type === 'create') {
+            const idx = services.findIndex(s => s.id === op.tempId);
+            if (idx !== -1) services[idx] = result.record;
+            else services.unshift(result.record);
+        } else if (op.type === 'update') {
+            const rec = services.find(s => s.id === op.body.record.id);
+            if (rec) { Object.assign(rec, result.record); delete rec._dirty; }
+        }
+    }
+
+    async function flushQueue() {
+        if (!gasUrl) return;
+        const queue = loadQueue();
+        if (!queue.length) return;
+        setSyncStatus('🔄 நிலுவையிலான மாற்றங்கள் அனுப்பப்படுகிறது...');
+        const remaining = [];
+        for (const op of queue) {
+            try {
+                const result = await callGas_(op.body);
+                applyServerResult_(op, result);
+            } catch (err) {
+                console.error('flush op failed, will retry later', op, err);
+                remaining.push(op);
+            }
+        }
+        saveQueue(remaining);
+        saveCache();
+        updateStatsAndRender();
+    }
+
+    function promptGasUrl() {
+        const val = prompt('Google Apps Script Web App URL-ஐ ஒட்டவும்:\n(Apps Script-ஐ Deploy செய்த பிறகு கிடைக்கும் URL)', gasUrl || '');
+        if (val === null) return;
+        gasUrl = val.trim();
+        localStorage.setItem(GAS_URL_KEY, gasUrl);
+        if (gasUrl) runInitialSync();
+        else setSyncStatus('☁️ Sync அமைக்கப்படவில்லை');
+    }
+
+    function manualSync() {
+        if (!gasUrl) { promptGasUrl(); return; }
+        flushQueue().then(() => pullAllFromCloud(true)).then(updateStatsAndRender);
+    }
+
+    async function runInitialSync() {
+        if (!gasUrl) { setSyncStatus('☁️ Sync அமைக்கப்படவில்லை'); return; }
+        setSyncStatus('⏳ இணைக்கப்படுகிறது...');
+        await migrateLegacyIfNeeded();
+        await pullAllFromCloud(true);
+        await flushQueue();
+        updateStatsAndRender();
+    }
+
+    window.addEventListener('online', function () {
+        if (gasUrl) flushQueue().then(() => pullAllFromCloud(false)).then(updateStatsAndRender);
+    });
+
+    setInterval(async function () {
+        if (!gasUrl) return;
+        await flushQueue();
+        await pullAllFromCloud(false);
+        updateStatsAndRender();
+    }, 15000);
+    /* ---------- End Cloud Sync ---------- */
+
+    /* ---------- Create / Update / Delete a record (pushes straight to the Sheet) ---------- */
+
+    async function createServiceRecord(fields) {
+        const tempId = genTempId();
+        const nowTs = Date.now();
+        const nowStrLocal = getCurrentDateTime();
+        const tempRecord = Object.assign({
+            id: tempId, dhsId: '⏳ சின்க்...',
+            registerDate: nowStrLocal, lastUpdated: nowStrLocal, whatsappCount: 0,
+            docUrl: null, docName: null, createdAt: nowTs, updatedAt: nowTs, _local: true
+        }, fields);
+        services.unshift(tempRecord);
+        updateStatsAndRender();
+        saveCache();
+
+        const op = { type: 'create', tempId: tempId, body: { action: 'createRecord', record: fields } };
+        if (!gasUrl) {
+            enqueueOp(op);
+            setSyncStatus('⚠️ Sync அமைக்கப்படவில்லை - உள்ளூரில் மட்டும் சேமிக்கப்பட்டது');
+            return;
+        }
+        setSyncStatus('🔄 சேமிக்கப்படுகிறது...');
+        try {
+            const result = await callGas_(op.body);
+            const idx = services.findIndex(s => s.id === tempId);
+            if (idx !== -1) services[idx] = result.record;
+            setSyncStatus('✅ சின்க் ஆனது (' + new Date().toLocaleTimeString('ta-IN') + ')');
+            showToast('✅ புதிய பதிவு சேமிக்கப்பட்டது', 'success');
+        } catch (err) {
+            console.error('create failed, queued for retry', err);
+            enqueueOp(op);
+            setSyncStatus('⚠️ இணையம் இல்லை - பின்னர் தானாக சின்க் ஆகும்');
+            showToast('⚠️ இணையம் இல்லை - உள்ளூரில் சேமிக்கப்பட்டது, பின்னர் சின்க் ஆகும்', 'warning');
+        }
+        saveCache();
+        updateStatsAndRender();
+    }
+
+    async function updateServiceRecord(id, patch, options) {
+        options = options || {};
+        const rec = services.find(s => s.id === id);
+        if (!rec) return;
+        Object.assign(rec, patch, { lastUpdated: getCurrentDateTime() });
+        rec._dirty = true;
+        updateStatsAndRender();
+        saveCache();
+
+        const body = { action: 'updateRecord', record: Object.assign({ id: id }, patch) };
+        if (!gasUrl) {
+            enqueueOp({ type: 'update', body: body });
+            if (!options.silent) showToast('⚠️ Sync அமைக்கப்படவில்லை - உள்ளூரில் மட்டும் சேமிக்கப்பட்டது', 'warning');
+            return;
+        }
+        try {
+            const result = await callGas_(body);
+            Object.assign(rec, result.record);
+            delete rec._dirty;
+            setSyncStatus('✅ சின்க் ஆனது (' + new Date().toLocaleTimeString('ta-IN') + ')');
+            if (!options.silent) showToast('✅ பதிவு புதுப்பிக்கப்பட்டது', 'success');
+        } catch (err) {
+            console.error('update failed, queued for retry', err);
+            enqueueOp({ type: 'update', body: body });
+            setSyncStatus('⚠️ இணையம் இல்லை - பின்னர் தானாக சின்க் ஆகும்');
+            if (!options.silent) showToast('⚠️ இணையம் இல்லை - பின்னர் தானாக சின்க் ஆகும்', 'warning');
+        }
+        saveCache();
+        updateStatsAndRender();
+    }
+
+    async function deleteServiceRecords(ids) {
+        services = services.filter(s => !ids.includes(s.id));
+        updateStatsAndRender();
+        saveCache();
+        showToast(ids.length > 1 ? `🗑️ ${ids.length} பதிவுகள் நீக்கப்பட்டன` : '🗑️ பதிவு நீக்கப்பட்டது', 'warning');
+
+        // still-unsynced "create" ops for these ids never reached the sheet - just drop them
+        let queue = loadQueue();
+        queue = queue.filter(op => !(op.type === 'create' && ids.includes(op.tempId)));
+        saveQueue(queue);
+
+        const realIds = ids.filter(id => !String(id).startsWith('local-'));
+        if (!realIds.length) return;
+        const body = { action: 'deleteRecords', ids: realIds };
+        if (!gasUrl) { enqueueOp({ type: 'deleteMany', body: body }); return; }
+        try {
+            await callGas_(body);
+            setSyncStatus('✅ சின்க் ஆனது (' + new Date().toLocaleTimeString('ta-IN') + ')');
+        } catch (err) {
+            console.error('delete failed, queued for retry', err);
+            enqueueOp({ type: 'deleteMany', body: body });
+            setSyncStatus('⚠️ இணையம் இல்லை - பின்னர் தானாக சின்க் ஆகும்');
+        }
+    }
+
+    // Load from the offline cache (instant render); real data arrives via runInitialSync()
+    function loadData() {
+        services = loadCache();
+        if (!Array.isArray(services)) services = [];
+        services.forEach(s => {
+            if (s.whatsappCount === undefined) s.whatsappCount = 0;
+            if (s.docUrl === undefined) s.docUrl = null;
+            if (s.docName === undefined) s.docName = null;
+            if (s.createdAt === undefined) s.createdAt = 0;
+        });
+        updateStatsAndRender();
+    }
+    
+    // filter + search combined
+    function getFilteredServices() {
+        let filtered = [...services];
+        // status filter
+        if(currentFilter === "pending") filtered = filtered.filter(s => s.status === "Pending" || s.status === "In Progress");
+        else if(currentFilter === "completed") filtered = filtered.filter(s => s.status === "Completed");
+        else if(currentFilter === "rejected") filtered = filtered.filter(s => s.status === "Rejected");
+        else if(currentFilter === "all") filtered = filtered;
+        
+        // search by DHS ID, name or mobile
+        if(searchKeyword.trim() !== "") {
+            const kw = searchKeyword.trim().toLowerCase();
+            filtered = filtered.filter(s => 
+                s.dhsId.toLowerCase().includes(kw) || 
+                s.name.toLowerCase().includes(kw) || 
+                s.mobile.includes(kw)
+            );
+        }
+        // sort by createdAt desc (newest first) - id is now a server UUID, not numeric
+        filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+        return filtered;
+    }
+    
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const noDataMsg = document.getElementById('noDataMsg');
+        const filtered = getFilteredServices();
+        
+        tbody.innerHTML = '';
+        if(filtered.length === 0) {
+            noDataMsg.classList.remove('d-none');
+        } else {
+            noDataMsg.classList.add('d-none');
+            filtered.forEach((service, idx) => {
+                const row = tbody.insertRow();
+                // checkbox
+                const chkCell = row.insertCell(0);
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'row-checkbox';
+                chk.setAttribute('data-id', service.id);
+                chkCell.appendChild(chk);
+                
+                // Serial number
+                row.insertCell(1).innerText = idx+1;
+                // DHS ID (unique permanent ID)
+                row.insertCell(2).innerHTML = `<span class="unique-id"><i class="fas fa-id-card"></i> ${service.dhsId}</span>`;
+                row.insertCell(3).innerText = service.name;
+                row.insertCell(4).innerText = service.mobile;
+                row.insertCell(5).innerText = service.serviceName;
+                {
+                    const refCell = row.insertCell(6);
+                    let docBtnHtml;
+                    if(service.docUrl) {
+                        docBtnHtml = `<a href="${service.docUrl}" target="_blank" class="doc-btn doc-view" title="ஆவணத்தை பார்க்க: ${service.docName || ''}"><i class="fas fa-file-circle-check"></i></a>
+                            <button type="button" class="doc-btn doc-upload-btn" data-id="${service.id}" title="ஆவணத்தை மாற்று"><i class="fas fa-rotate"></i></button>`;
+                    } else {
+                        docBtnHtml = `<button type="button" class="doc-btn doc-upload-btn" data-id="${service.id}" title="முடிந்த வேலையின் ஆவணத்தை பதிவேற்று"><i class="fas fa-paperclip"></i></button>`;
+                    }
+                    refCell.innerHTML = `<div class="ref-cell"><span>${service.refNo}</span>${docBtnHtml}</div>`;
+                }
+                
+                let statusClass = '';
+                if(service.status === 'Completed') statusClass = 'bg-success text-white';
+                else if(service.status === 'In Progress') statusClass = 'bg-warning text-dark';
+                else if(service.status === 'Rejected') statusClass = 'bg-danger text-white';
+                else statusClass = 'bg-secondary text-white';
+                row.insertCell(7).innerHTML = `<span class="badge-status ${statusClass}">${service.status === 'Rejected' ? '❌ நிராகரிக்கப்பட்டது' : (service.status === 'Completed' ? '✅ முடிந்தது' : (service.status === 'In Progress' ? '🔧 செயல்பாட்டில்' : '⏳ நிலுவையில்'))}</span>`;
+                row.insertCell(8).innerText = service.note || '-';
+                
+                // Register Date
+                const regDate = service.registerDate || service.lastUpdated || getCurrentDateTime();
+                const daysInfo = daysElapsedInfo(service);
+                const daysHtml = daysInfo ? `<span class="days-elapsed ${daysInfo.cls}">${daysInfo.text}</span>` : '';
+                row.insertCell(9).innerHTML = `<span class="register-date"><i class="far fa-calendar-alt"></i> ${regDate}</span>${daysHtml}`;
+                // Last updated
+                row.insertCell(10).innerHTML = `<span class="last-updated"><i class="far fa-clock"></i> ${service.lastUpdated || regDate}</span>`;
+                
+                // actions
+                const actions = row.insertCell(11);
+                const whatsCount = service.whatsappCount || 0;
+                actions.innerHTML = `
+                    <button class="btn btn-sm btn-warning edit-btn me-1" data-id="${service.id}"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger delete-btn me-1" data-id="${service.id}"><i class="fas fa-trash"></i></button>
+                    <a class="whatsapp-link" data-id="${service.id}" style="text-decoration:none; font-size:0.9rem;">
+                        <i class="fab fa-whatsapp"></i> <span class="whatsapp-count">${whatsCount}</span>
+                    </a>
+                `;
+            });
+        }
+        
+        // attach events
+        document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleEdit));
+        document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDelete));
+        document.querySelectorAll('.whatsapp-link').forEach(link => link.addEventListener('click', handleWhatsAppClick));
+        document.querySelectorAll('.doc-upload-btn').forEach(btn => btn.addEventListener('click', handleDocUploadClick));
+        
+        // update select all state
+        const allCheck = document.getElementById('selectAllCheckbox');
+        if(allCheck) allCheck.checked = false;
+    }
+    
+    function updateStatsAndRender() {
+        // compute counts based on full data
+        const total = services.length;
+        const completed = services.filter(s => s.status === 'Completed').length;
+        const rejected = services.filter(s => s.status === 'Rejected').length;
+        const pendingTotal = services.filter(s => s.status === 'Pending' || s.status === 'In Progress').length;
+        document.getElementById('completedCount').innerText = completed;
+        document.getElementById('rejectedCount').innerText = rejected;
+        document.getElementById('pendingCount').innerText = pendingTotal;
+        document.getElementById('totalCount').innerText = total;
+        
+        // Highlight active filter card
+        document.querySelectorAll('.stats-card').forEach(card => {
+            card.classList.remove('active-filter');
+            card.style.background = '';
+        });
+        if(currentFilter === 'pending') document.getElementById('pendingFilterCard')?.classList.add('active-filter');
+        else if(currentFilter === 'completed') document.querySelector('.stats-card[data-filter="completed"]')?.classList.add('active-filter');
+        else if(currentFilter === 'rejected') document.querySelector('.stats-card[data-filter="rejected"]')?.classList.add('active-filter');
+        else if(currentFilter === 'all') document.getElementById('allJobsCard')?.classList.add('active-filter');
+        
+        const badgeText = currentFilter === 'pending' ? '⏳ நிலுவை / செயல்பாட்டில் மட்டும்' : (currentFilter === 'completed' ? '✅ முடிந்த வேலைகள்' : (currentFilter === 'rejected' ? '❌ நிராகரிக்கப்பட்டவை' : '📋 அனைத்து வேலைகளும்'));
+        document.getElementById('viewModeBadge').innerText = badgeText;
+        
+        renderTable();
+    }
+    
+    // Add or update service - pushes straight to the Sheet (DHS ID assigned by the server)
+    async function addOrUpdateService(serviceData, isEdit = false) {
+        const submitBtn = document.querySelector('#serviceForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> சேமிக்கப்படுகிறது...';
+        }
+        if (isEdit && editingId !== null) {
+            const id = editingId;
+            editingId = null;
+            await updateServiceRecord(id, serviceData);
+        } else {
+            await createServiceRecord(serviceData);
+        }
+        document.getElementById('serviceForm').reset();
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> சேமி / புதுப்பி';
+        }
+        document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    function handleEdit(e) {
+        const id = e.currentTarget.getAttribute('data-id');
+        const service = services.find(s => s.id === id);
+        if(service) {
+            document.getElementById('name').value = service.name;
+            document.getElementById('mobile').value = service.mobile;
+            document.getElementById('serviceName').value = service.serviceName;
+            document.getElementById('refNo').value = service.refNo;
+            document.getElementById('status').value = service.status;
+            document.getElementById('note').value = service.note || '';
+            editingId = service.id;
+            document.querySelector('#serviceForm button[type="submit"]').innerHTML = '<i class="fas fa-edit"></i> புதுப்பி';
+            document.getElementById('formSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+    
+    function handleDelete(e) {
+        const id = e.currentTarget.getAttribute('data-id');
+        if(confirm('இந்த வேலையை நிரந்தரமாக நீக்க வேண்டுமா?')) {
+            deleteServiceRecords([id]);
+        }
+    }
+    
+    function handleWhatsAppClick(e) {
+        e.preventDefault();
+        const id = e.currentTarget.getAttribute('data-id');
+        const service = services.find(s => s.id === id);
+        if(service) {
+            updateServiceRecord(id, { whatsappCount: (service.whatsappCount || 0) + 1 }, { silent: true });
+            showToast('📲 வாட்ஸ்அப் அனுப்பப்படுகிறது...', 'info');
+            sendWhatsApp(service.mobile, service.name, service.serviceName, service.refNo, service.status, service.note, service.dhsId, service.docUrl);
+        }
+    }
+    
+    // Updated sendWhatsApp function with Work Id instead of DHS-ID and working hours
+    function sendWhatsApp(phone, name, serviceName, refNo, status, note, dhsId, docUrl) {
+        let statusText = status === 'Rejected' ? '❌ நிராகரிக்கப்பட்டது' : (status === 'Completed' ? '✅ முடிந்தது' : (status === 'In Progress' ? '🔧 செயல்பாட்டில்' : '⏳ நிலுவையில்'));
+        let message = `*தாஸ் பொது சேவை மையம்*
+🆔 Work Id: ${dhsId}
+📌 பெயர்: ${name}
+📞 செல்: ${phone}
+🛠️ சேவை: ${serviceName}
+🔖 குறிப்பு எண்: ${refNo}
+📊 நிலை: ${statusText}
+✏️ குறிப்பு: ${note || '-'}
+🕒 கடைசி புதுப்பிப்பு: ${getCurrentDateTime()}
+⏰ வேலை நேரம்: காலை:9.30-5.30`;
+        if(docUrl) {
+            message += `
+📎 ஆவணம்: ${docUrl}`;
+        }
+        
+        let cleanPhone = phone.toString().replace(/\D/g, '');
+        if(!cleanPhone.startsWith('91') && cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+    
+    /* ---------- Completed-work document upload (Google Drive via Apps Script) ---------- */
+    // ஆவண பதிவேற்றமும் இப்போது அதே Sync URL-ஐயே பயன்படுத்துகிறது (ஒரே Code.gs).
+    let pendingDocServiceId = null;
+    const MAX_DOC_SIZE_MB = 8;
+    
+    function handleDocUploadClick(e) {
+        const id = e.currentTarget.getAttribute('data-id');
+        if(!gasUrl) {
+            alert('முதலில் "⚙️ Sync அமை" பொத்தானை அழுத்தி URL-ஐ அமைக்கவும்.');
+            promptGasUrl();
+            return;
+        }
+        pendingDocServiceId = id;
+        document.getElementById('docFileInput').click();
+    }
+    
+    function setDocUploadStatus(text, show) {
+        const el = document.getElementById('docUploadStatus');
+        if(!el) return;
+        el.innerText = text;
+        el.style.display = show ? 'block' : 'none';
+    }
+    
+    document.getElementById('docFileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if(!file || pendingDocServiceId === null) return;
+        if(file.size > MAX_DOC_SIZE_MB * 1024 * 1024) {
+            alert(`கோப்பு அளவு ${MAX_DOC_SIZE_MB}MB-க்குள் இருக்க வேண்டும்.`);
+            pendingDocServiceId = null;
+            return;
+        }
+        const service = services.find(s => s.id === pendingDocServiceId);
+        if(!service) { pendingDocServiceId = null; return; }
+        if(!gasUrl) {
+            alert('முதலில் "⚙️ Sync அமை" பொத்தானை அழுத்தி URL-ஐ அமைக்கவும். ஆவண பதிவேற்றத்திற்கு இணையம் தேவை.');
+            pendingDocServiceId = null;
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = async function(evt) {
+            const base64Data = evt.target.result.split(',')[1];
+            setDocUploadStatus('⏳ ஆவணம் பதிவேற்றப்படுகிறது...', true);
+            try {
+                const res = await fetch(gasUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'uploadDoc',
+                        recordId: service.id,
+                        dhsId: service.dhsId,
+                        fileName: file.name,
+                        mimeType: file.type || 'application/octet-stream',
+                        base64Data: base64Data
+                    })
+                });
+                const result = await res.json();
+                if(result.success) {
+                    if(result.record) Object.assign(service, result.record);
+                    else { service.docUrl = result.url; service.docName = result.fileName || file.name; }
+                    saveCache();
+                    updateStatsAndRender();
+                    setDocUploadStatus('✅ ஆவணம் பதிவேற்றப்பட்டது.', true);
+                    showToast('✅ ஆவணம் பதிவேற்றப்பட்டது', 'success');
+                    setTimeout(() => setDocUploadStatus('', false), 3000);
+                } else {
+                    setDocUploadStatus('', false);
+                    showToast('⚠️ ஆவண பதிவேற்றம் தோல்வி', 'warning');
+                    alert('⚠️ பதிவேற்றம் தோல்வி: ' + (result.error || 'தெரியாத பிழை'));
+                }
+            } catch(err) {
+                setDocUploadStatus('', false);
+                alert('⚠️ பதிவேற்றத்தில் பிழை - இணையம் சரிபார்க்கவும்.\n' + err.message);
+            }
+            pendingDocServiceId = null;
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    document.getElementById('docSettingsBtn').addEventListener('click', promptGasUrl);
+    
+    // Bulk delete
+    document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if(checkboxes.length === 0) return alert("தேர்வு செய்யவும்");
+        if(confirm(`${checkboxes.length} பதிவுகளை நீக்கவும்?`)) {
+            const idsToDelete = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
+            deleteServiceRecords(idsToDelete);
+            document.getElementById('selectAllCheckbox').checked = false;
+        }
+    });
+    
+    // Form submit
+    document.getElementById('serviceForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newService = {
+            name: document.getElementById('name').value.trim(),
+            mobile: document.getElementById('mobile').value.trim(),
+            serviceName: document.getElementById('serviceName').value.trim(),
+            refNo: document.getElementById('refNo').value.trim(),
+            status: document.getElementById('status').value,
+            note: document.getElementById('note').value.trim(),
+        };
+        if(!newService.name || !newService.mobile || !newService.serviceName || !newService.refNo) {
+            alert("பெயர், செல், சேவை, குறிப்பு எண் கட்டாயம்.");
+            return;
+        }
+        addOrUpdateService(newService, editingId !== null);
+    });
+    
+    document.getElementById('clearFormBtn').addEventListener('click', () => {
+        document.getElementById('serviceForm').reset();
+        editingId = null;
+        document.querySelector('#serviceForm button[type="submit"]').innerHTML = '<i class="fas fa-save"></i> சேமி / புதுப்பி';
+        document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    // Export to Excel (with DHS ID)
+    document.getElementById('exportExcelBtn').addEventListener('click', () => {
+        const exportData = services.map((s, idx) => ({
+            'வ.எண்': idx+1,
+            'DHS-ID': s.dhsId,
+            'பெயர்': s.name,
+            'செல் நம்பர்': s.mobile,
+            'சேவை பெயர்': s.serviceName,
+            'குறிப்பு எண்': s.refNo,
+            'சேவை நிலை': s.status === 'Rejected' ? 'நிராகரிக்கப்பட்டது' : (s.status === 'Completed' ? 'முடிந்தது' : (s.status === 'In Progress' ? 'செயல்பாட்டில்' : 'நிலுவையில்')),
+            'குறிப்பு': s.note || '',
+            'பதிவு தேதி': s.registerDate || '',
+            'கடைசி அப்டேட்': s.lastUpdated || '',
+            'வாட்ஸ்அப் கிளிக்குகள்': s.whatsappCount || 0,
+            'ஆவண இணைப்பு': s.docUrl || ''
+        }));
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'ServiceTracking');
+        XLSX.writeFile(wb, `service_center_${new Date().toISOString().slice(0,19)}.xlsx`);
+    });
+    
+    // Import Excel
+    document.getElementById('importExcelBtn').addEventListener('click', () => {
+        document.getElementById('importFile').value = '';
+        document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if(!file) { e.target.value = ''; return; }
+        if(!gasUrl) { alert('இறக்குமதிக்கு முதலில் Sync URL அமைக்கவும் (⚙️ Sync அமை).'); e.target.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet);
+            const newImports = [];
+            
+            for(let row of rows) {
+                let name = row['பெயர்'] || row['Name'] || '';
+                let mobile = row['செல் நம்பர்'] || row['Mobile'] || '';
+                let serviceName = row['சேவை பெயர்'] || row['Service'] || '';
+                let refNo = row['குறிப்பு எண்'] || row['RefNo'] || '';
+                let statusRaw = String(row['சேவை நிலை'] || row['Status'] || 'Pending');
+                let status = 'Pending';
+                if(statusRaw.includes('முடிந்த') || statusRaw === 'Completed') status = 'Completed';
+                else if(statusRaw.includes('நிராகரிக்கப்பட்டது') || statusRaw === 'Rejected') status = 'Rejected';
+                else if(statusRaw.includes('செயல்பாட்டில்') || statusRaw === 'In Progress') status = 'In Progress';
+                let note = row['குறிப்பு'] || row['Note'] || '';
+                let registerDate = row['பதிவு தேதி'] || getCurrentDateTime();
+                let lastUpdated = row['கடைசி அப்டேட்'] || getCurrentDateTime();
+                let whatsappCount = Number(row['வாட்ஸ்அப் கிளிக்குகள்']) || 0;
+                let existingDhsId = row['DHS-ID'] || '';
+                let docUrl = row['ஆவண இணைப்பு'] || null;
+                
+                if(name && mobile) {
+                    const dhsId = (existingDhsId && String(existingDhsId).match(/DHS-\d+/)) ? existingDhsId : null;
+                    newImports.push({ name, mobile, serviceName, refNo, status, note, registerDate, lastUpdated, whatsappCount, dhsId, docUrl });
+                }
+            }
+            
+            if(!newImports.length) { alert('சரியான தரவு இல்லை'); e.target.value = ''; return; }
+            
+            const replace = confirm(`${newImports.length} பதிவுகள் கண்டறியப்பட்டன.\n⚠️ பழைய தரவுகளை நீக்கிவிட்டு இறக்குமதி செய்யவா?\n"OK" → மாற்று | "Cancel" → கூட்டு சேமிப்பு`);
+            setSyncStatus('⏳ இறக்குமதி செய்யப்படுகிறது...');
+            try {
+                if(replace) await callGas_({ action: 'deleteAllRecords' });
+                const result = await callGas_({ action: 'importRecords', records: newImports });
+                await pullAllFromCloud(true);
+                updateStatsAndRender();
+                alert(`${result.imported || newImports.length} பதிவுகள் இறக்குமதி முடிந்தது.`);
+            } catch(err) {
+                alert('⚠️ இறக்குமதியில் பிழை - இணையம் சரிபார்க்கவும்.\n' + err.message);
+            }
+            e.target.value = '';
+        };
+        reader.readAsArrayBuffer(file);
+    });
+    
+    document.getElementById('printTableBtn').addEventListener('click', () => window.print());
+    
+    // Search listener
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchKeyword = e.target.value;
+        renderTable();
+    });
+    
+    // Click on stats cards to change filter
+    document.querySelectorAll('.stats-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const filter = card.getAttribute('data-filter');
+            if(filter === 'completed') currentFilter = 'completed';
+            else if(filter === 'rejected') currentFilter = 'rejected';
+            else if(filter === 'pending') currentFilter = 'pending';
+            else if(filter === 'all') currentFilter = 'all';
+            else currentFilter = 'pending';
+            updateStatsAndRender();
+        });
+    });
+    
+    // select all checkbox functionality
+    document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = isChecked);
+    });
+    
+    document.addEventListener('change', (e) => {
+        if(e.target.classList && e.target.classList.contains('row-checkbox')) {
+            const allBoxes = document.querySelectorAll('.row-checkbox');
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if(selectAll) selectAll.checked = Array.from(allBoxes).every(cb => cb.checked);
+        }
+    });
+    
+    loadData();
+    if (gasUrl) {
+        setSyncStatus('☁️ Sync தயார்');
+        runInitialSync();
+    } else {
+        setSyncStatus('☁️ Sync அமைக்கப்படவில்லை');
+    }
+</script>
+</body>
+</html>
