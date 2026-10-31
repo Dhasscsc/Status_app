@@ -222,6 +222,8 @@
         <span id="syncStatus">☁️ Sync அமைக்கப்படவில்லை</span>
         <button class="sync-btn" onclick="manualSync()" title="இப்போதே சின்க் செய்">🔄 இப்போதே சின்க்</button>
         <button class="sync-btn" onclick="promptGasUrl()" title="Sync URL அமை">⚙️ Sync அமை</button>
+        <button class="sync-btn" onclick="publishPublicStatus(true)" title="வாடிக்கையாளர் நிலைப் பக்கத்தை இப்போதே புதுப்பி">🌐 வாடிக்கையாளர் பக்கம் புதுப்பி</button>
+        <button class="sync-btn" onclick="setupPublicStatus()" title="வாடிக்கையாளர் பக்க URL & சாவி">🔑 நிலைப் பக்க சாவி</button>
     </div>
 
     <!-- ========================= படிவம் ========================= -->
@@ -412,6 +414,63 @@
     const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxEenE0WzOFwn5Pniu8hZtyoPUdYSTVvSIUIxNwTYTPtmOhDkis9TE2wkrzdMaZYC81tQ/exec';
     let gasUrl = localStorage.getItem(GAS_URL_KEY) || DEFAULT_GAS_URL;
 
+    /* ---------- வாடிக்கையாளர் சேவை நிலைப் பக்கம் (status.html) ----------
+       இங்குள்ள பதிவுகளில் இருந்து சேவை பெயர், நிலை, குறிப்பு, தேதி மட்டுமே தனி Script-க்கு (StatusCode.gs) அனுப்பப்படும்.
+       பெயர், செல் நம்பர், ஆவண இணைப்பு எதுவும் செல்லாது. தேடல்: குறிப்பு எண் அல்லது DHS-ID. */
+    const PUB_DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbxWxJYfGmT1b2CRoGQFCJYRel3RTsi0mrwqs3M3dUjOORQJMruxV9VdadIxuJVNNnxibg/exec';
+    const PUB_URL_KEY = 'dhassStatusPubUrl';
+    const PUB_KEY_KEY = 'dhassStatusPubKey';
+    const PUB_HASH_KEY = 'dhassStatusPubHash';
+    const PUB_STATUS_MAP = { 'Pending': 'pending', 'In Progress': 'progress', 'Completed': 'done', 'Rejected': 'rejected' };
+    let pubTimer = null;
+    let pulledOnce = false;   // முதல் வெற்றிகரமான cloud pull-க்கு முன் வெளியிட்டால் பழைய தரவு அழிந்துவிடும் - தடுக்க
+    function schedulePublicStatus() {
+        clearTimeout(pubTimer);
+        pubTimer = setTimeout(function () { publishPublicStatus(false); }, 2000);
+    }
+    async function publishPublicStatus(manual) {
+        const url = localStorage.getItem(PUB_URL_KEY) || PUB_DEFAULT_URL;
+        const key = localStorage.getItem(PUB_KEY_KEY);
+        if (!key) { if (manual) setupPublicStatus(); return; }
+        if (!pulledOnce) { if (manual) showToast('⏳ முதலில் சின்க் முடியட்டும், பிறகு முயற்சிக்கவும்', 'warning'); return; }
+        const items = [];
+        services.forEach(function (sv) {
+            if (sv._local || String(sv.id).indexOf('local-') === 0) return;
+            const base = {
+                serviceType: '', serviceName: sv.serviceName || '',
+                status: PUB_STATUS_MAP[sv.status] || 'pending', note: sv.note || '',
+                createdAt: sv.createdAt || 0, updatedAt: sv.updatedAt || sv.createdAt || 0
+            };
+            const refs = [];
+            if (sv.refNo && String(sv.refNo).trim()) refs.push(String(sv.refNo).trim());
+            if (sv.dhsId && /^DHS-\d+/i.test(sv.dhsId)) refs.push(String(sv.dhsId).trim());
+            refs.forEach(function (r) { items.push(Object.assign({ ref: r }, base)); });
+        });
+        const payload = JSON.stringify(items);
+        if (!manual && payload === localStorage.getItem(PUB_HASH_KEY)) return;   // மாற்றம் இல்லை
+        try {
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ key: key, items: items }) });
+            const d = await res.json();
+            if (d && d.ok) {
+                try { localStorage.setItem(PUB_HASH_KEY, payload); } catch (e) {}
+                if (manual) showToast('🌐 வாடிக்கையாளர் பக்கம் புதுப்பிக்கப்பட்டது (' + d.count + ' எண்கள்)', 'success');
+            } else {
+                showToast('⚠️ வாடிக்கையாளர் பக்கம்: ' + ((d && d.error) || 'பிழை'), 'warning');
+            }
+        } catch (e) {
+            if (manual) showToast('⚠️ வெளியீடு பிழை - இணையம் சரிபார்க்கவும்', 'warning');
+        }
+    }
+    function setupPublicStatus() {
+        const u = prompt('StatusCode.gs Web App URL:', localStorage.getItem(PUB_URL_KEY) || PUB_DEFAULT_URL);
+        if (u === null) return;
+        const k = prompt('StatusCode.gs-இல் வைத்த ரகசிய சாவி (ADMIN_KEY):', localStorage.getItem(PUB_KEY_KEY) || '');
+        if (k === null) return;
+        localStorage.setItem(PUB_URL_KEY, u.trim() || PUB_DEFAULT_URL);
+        localStorage.setItem(PUB_KEY_KEY, k.trim());
+        publishPublicStatus(true);
+    }
+
     const CACHE_KEY = 'dasServiceCenterCloudCacheV3';   // offline mirror of last known cloud data
     const QUEUE_KEY = 'dasServiceCenterPendingOpsV1';    // unsynced ops (created while offline)
     const LEGACY_KEY = 'dasServiceCenterProV2';          // old whole-blob key, migrated once
@@ -442,6 +501,7 @@
     }
     function saveCache() {
         try { localStorage.setItem(CACHE_KEY, JSON.stringify(services)); } catch (e) {}
+        schedulePublicStatus();
     }
     function loadQueue() {
         try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (e) { return []; }
@@ -520,6 +580,7 @@
                     Object.assign(local, r);
                 }
             });
+            pulledOnce = true;
             saveCache();
             setSyncStatus('✅ சின்க் ஆனது (' + new Date().toLocaleTimeString('ta-IN') + ')');
             return true;
