@@ -823,7 +823,8 @@
                     } else {
                         docBtnHtml = `<button type="button" class="doc-btn doc-upload-btn" data-id="${service.id}" title="முடிந்த வேலையின் ஆவணத்தை பதிவேற்று"><i class="fas fa-paperclip"></i></button>`;
                     }
-                    refCell.innerHTML = `<div class="ref-cell"><span>${service.refNo}</span>${docBtnHtml}</div>`;
+                    const refSafe = String(service.refNo || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+                    refCell.innerHTML = `<div class="ref-cell"><span class="ref-copy" data-ref="${refSafe}" title="கிளிக் செய்தால் காப்பி ஆகும்" style="cursor:pointer;">${refSafe}</span>${docBtnHtml}</div>`;
                 }
                 
                 let statusClass = '';
@@ -1208,6 +1209,28 @@ https://dhasscsc.github.io/Cus_Status/`;
         }
     });
     
+    // குறிப்பு எண்ணை கிளிக் செய்தால் காப்பி ஆகும்
+    document.addEventListener('click', function (e) {
+        const el = e.target.closest && e.target.closest('.ref-copy');
+        if (!el) return;
+        const text = el.getAttribute('data-ref') || '';
+        if (!text) return;
+        const done = function () {
+            showToast('📋 காப்பி ஆனது: ' + text, 'success');
+            el.style.background = '#dcfce7';
+            setTimeout(function () { el.style.background = ''; }, 700);
+        };
+        const fallback = function () {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch (err) { showToast('⚠️ காப்பி செய்ய முடியவில்லை', 'warning'); }
+            ta.remove();
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+    });
+
     loadData();
     if (gasUrl) {
         setSyncStatus('☁️ Sync தயார்');
