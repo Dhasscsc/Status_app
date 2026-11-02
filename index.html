@@ -773,17 +773,24 @@
         else if(currentFilter === "rejected") filtered = filtered.filter(s => s.status === "Rejected");
         else if(currentFilter === "all") filtered = filtered;
         
-        // search by DHS ID, name or mobile
+        // தேடல்: DHS-ID, பெயர், செல், சேவை பெயர், குறிப்பு எண், குறிப்பு
         if(searchKeyword.trim() !== "") {
             const kw = searchKeyword.trim().toLowerCase();
-            filtered = filtered.filter(s => 
-                s.dhsId.toLowerCase().includes(kw) || 
-                s.name.toLowerCase().includes(kw) || 
-                s.mobile.includes(kw)
-            );
+            const kwDigits = kw.replace(/[\s\-]/g, '');
+            filtered = filtered.filter(s => {
+                const hay = [s.dhsId, s.name, s.mobile, s.serviceName, s.refNo, s.note]
+                    .map(v => String(v == null ? '' : v).toLowerCase()).join(' | ');
+                if (hay.includes(kw)) return true;
+                // DHS-001 / DHS001, TN-123 / TN123 போன்ற இடைவெளி/கோடு வேறுபாட்டையும் ஏற்கும்
+                return kwDigits.length >= 3 && hay.replace(/[\s\-]/g, '').includes(kwDigits);
+            });
         }
-        // sort by createdAt desc (newest first) - id is now a server UUID, not numeric
-        filtered.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+        // கடைசியாக அப்டேட் செய்தது மேலே (அப்டேட் நேரம் இல்லாவிட்டால் பதிவு நேரம்)
+        const sortKey = (x) => {
+            const lu = parseRecordDate(x.lastUpdated);
+            return Math.max(x.updatedAt || 0, lu ? lu.getTime() : 0, x.createdAt || 0);
+        };
+        filtered.sort((a,b) => sortKey(b) - sortKey(a));
         return filtered;
     }
     
@@ -962,7 +969,7 @@
 📊 நிலை: ${statusText}
 ✏️ குறிப்பு: ${note || '-'}
 🕒 கடைசி புதுப்பிப்பு: ${getCurrentDateTime()}
-⏰ வேலை நேரம்: காலை 8.00 - இரவு 8.00
+⏰ வேலை நேரம்: காலை 9.00 - மாலை 6.00
 
 உங்களின் சேவையின் தற்போதைய நிலை அறிய
 https://dhasscsc.github.io/Cus_Status/`;
